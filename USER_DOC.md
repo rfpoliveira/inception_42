@@ -16,16 +16,19 @@ The infrastructure consists of three core services working together:
 To launch the entire stack, navigate to the root of the project and run:
 ```bash
 make
+```
 
 ### Stopping the Services
 
 To stop the services without deleting the persistent data, run:
 ```bash
 make stop
+```
 
 To stop and remove containers, networks, and internal Docker volumes, run:
 ```bash
 make clean
+```
 
 ## 3. Accessing the Website
 
@@ -53,6 +56,7 @@ To verify that all services are running correctly, use the following command:
 
 ```bash
 docker ps
+```
 
 A healthy stack should show three containers (nginx, wordpress, mariadb) with a status of Up.
 
@@ -60,3 +64,4 @@ You can also check the logs for specific errors:
 
 ```bash
 docker logs <container_name>
+```
