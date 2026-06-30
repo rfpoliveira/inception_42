@@ -1,15 +1,23 @@
 FROM debian:bullseye
 
-EXPOSE 3306
+# default port for mariadb
+EXPOSE 3306 
 
-RUN		apt update && \
-		apt install -y --no-install-recommends --no-install-suggests \
+# install mariadb and clear cache
+RUN		apt-get update && \
+		apt-get install -y --no-install-recommends --no-install-suggests \
 		mariadb-server && \
 		rm -rf /var/lib/apt/lists/*
 
+#create mysql diretory and give permissions
+RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
+
+#copies the configuration
 COPY	conf/50-server.cnf /etc/mysql/mariadb.conf.d/
 
+#copy and give permision to execute the script
 COPY	scripts/setup.sh /bin/
 RUN		chmod +x /bin/setup.sh
 
-CMD	["setup.sh", "mysqld_safe"]
+# define the script as the default to startup
+ENTRYPOINT	["/bin/setup.sh"]

@@ -20,7 +20,11 @@ all: up
 up:
 	@mkdir -p /home/$(USER)/data/mariadb
 	@mkdir -p /home/$(USER)/data/wordpress
-	@mkdir -p ./secrets
+	@mkdir -p ./srcs/secrets
+	@if [ ! -f ./srcs/secrets/db_password.txt ]; then openssl rand -base64 16 > ./srcs/secrets/db_password.txt; fi
+	@if [ ! -f ./srcs/secrets/db_root_password.txt ]; then openssl rand -base64 16 > ./srcs/secrets/db_root_password.txt; fi
+	@if [ ! -f ./srcs/secrets/wp_admin_password.txt ]; then openssl rand -base64 16 > ./srcs/secrets/wp_admin_password.txt; fi
+	@if [ ! -f ./srcs/secrets/wp_user_password.txt ]; then openssl rand -base64 16 > ./srcs/secrets/wp_user_password.txt; fi
 	@if ! grep -q "$(HOST_URL)" /etc/hosts; then \
 		echo "127.0.0.1 $(HOST_URL)" | sudo tee -a /etc/hosts; \
 	fi
@@ -30,13 +34,22 @@ down:
 	docker compose -f $(COMPOSE) down
 
 clean:
-	docker compose -f $(COMPOSE) down --volumes --rmi all
+	-docker rmi mariadb:inception wordpress:inception nginx:inception 2>/dev/null || true
+	-docker compose -f $(COMPOSE) down --volumes --rmi all
 
 fclean: clean
+	@docker run --rm \
+		-v /home/$(USER)/data/mariadb:/data/mariadb \
+		-v /home/$(USER)/data/wordpress:/data/wordpress \
+		alpine sh -c "rm -rf /data/mariadb/.* /data/mariadb/* /data/wordpress/* /data/wordpress/.* 2>/dev/null; exit 0"
 	@sudo rm -rf /home/$(USER)/data
-	@docker system prune -a --force
+	@sudo rm -rf ./srcs/secrets
+	@sudo rm -rf ./srcs/.env
+	docker system prune -a --force --volumes
 
 re: fclean all
+
+.PHONY: all up down clean fclean re
 
 #==============================================================================#
 #                                  UTILS                                       #
