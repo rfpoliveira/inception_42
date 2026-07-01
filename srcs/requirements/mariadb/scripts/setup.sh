@@ -4,7 +4,7 @@ set -e # makes the script stop if any fail
 DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 DB_PASSWORD=$(cat /run/secrets/db_password)
 
-if [ ! -d "/var/lib/mysql/$(DB_NAME)" ]; then
+if [ ! -d "/var/lib/mysql/${DB_NAME}" ]; then
 	echo "First execution: mariadb"
 	mysqld_safe --skip-networking > /dev/null 2>&1 & # launch mariadb in backgorund, skip network while root is being configured
 
